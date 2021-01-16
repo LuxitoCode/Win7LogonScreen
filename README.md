@@ -1,1 +1,69 @@
 # Win7LogonScreen
+With Win7LogonScreen, you can change windows 7 logon background
+It's made in batch
+Source code:
+@ECHO OFF
+COLOR 1A
+
+ECHO Welcome to Win7LogonScreen Logon background image changing script coded by LuxitoCode (Windows 7)
+ECHO.
+ECHO To use this script, keep a jpg image in the same folder as this and name it as "image.jpg". You will then need to right-click this program and select "Run as Administrator" for it to work correctly
+ECHO.
+ECHO The image must be in jpg format and must be smaller than 245KiB, and must have one of the following resolutions...
+ECHO.
+ECHO 768x1280 960x1280 900x1440 1024x768 1024x1280 1280x768 1280x960 1280x1024 1360x768 1440x900 1600x1200 1920x1200
+ECHO.
+ECHO Press Any key to continue...
+PAUSE > NUL
+
+CLS
+CD /D %~dp0
+ECHO Please enter your choice from the options below:
+ECHO [1] Add/Replace with an image for the lock screen background.
+ECHO [2] Remove the customized image previously added in the lock screen background.
+SET /P i=Your choice:
+CLS
+IF %i% EQU 1 (
+GOTO LABEL1
+)
+IF %i% EQU 2 (
+GOTO LABEL3
+)
+ELSE (
+ECHO Wrong choice && EXIT
+)
+
+:LABEL1
+IF EXIST image.jpg GOTO LABEL2
+IF NOT EXIST image.jpeg GOTO LABEL4
+
+:LABEL2
+REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\Background" /V OEMBackground /T REG_DWORD /d 00000001 /f >NUL 2>&1
+REG ADD "HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\System" /V OEMBackground /T REG_DWORD /d 00000001 /f >NUL 2>&1
+MD C:\WINDOWS\SYSTEM32\oobe\info\backgrounds >NUL 2>&1
+IF EXIST image.jpg COPY /Y image.jpg "C:\WINDOWS\SYSTEM32\oobe\info\backgrounds\backgroundDefault.jpg" >NUL 2>&1
+IF EXIST image.jpeg COPY /Y image.jpeg "C:\WINDOWS\SYSTEM32\oobe\info\backgrounds\backgroundDefault.jpg" >NUL 2>&1
+IF %ERRORLEVEL% EQU 0 ECHO Operation Successful
+IF %ERRORLEVEL% EQU 1 ECHO Some error occurred, Try running the program as Administrator.
+ECHO Program will now exit
+PAUSE > NUL
+EXIT
+
+:LABEL3
+RD /S /Q C:\WINDOWS\SYSTEM32\oobe\info\ >NUL 2>&1
+IF %ERRORLEVEL% EQU 0 ECHO Operation completed. 
+IF %ERRORLEVEL% EQU 0 ECHO Press any key to reboot
+IF %ERRORLEVEL% EQU 0 PAUSE > NUL
+IF %ERRORLEVEL% EQU 0 shutdown -r -t 00
+IF %ERRORLEVEL% EQU 1 ECHO Some error occurred, Try running the program as Administrator.
+IF %ERRORLEVEL% EQU 1 ECHO Press any key
+PAUSE > NUL
+
+:LABEL4
+ECHO An error has occurred.
+ECHO Image not found. Please put an image in the program's folder and name it as image.jpg.
+PAUSE > NUL
+GOTO LABEL1
+
+:END
+EXIT
